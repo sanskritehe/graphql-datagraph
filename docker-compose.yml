@@ -1,0 +1,39 @@
+version: "3.9"
+
+services:
+  appointment-db-service:
+    build:
+      context: ../appointment-db-service-repo
+    ports:
+      - "8000:8000"
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+
+  appointment-service:
+    build:
+      context: ../appointment-service-repo
+    ports:
+      - "8001:8001"
+    environment:
+      DB_SERVICE_URL: http://appointment-db-service:8000
+    depends_on:
+      - appointment-db-service
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8001
+
+  graphql-datagraph:
+    build: .
+    ports:
+      - "4000:4000"
+    depends_on:
+      - appointment-service
+      - appointment-db-service
+
+  rest-api-gateway:
+    build:
+      context: ../rest-api-gateway-repo
+    ports:
+      - "8080:8080"
+    environment:
+      DATAGRAPH_URL: http://graphql-datagraph:4000
+    depends_on:
+      - graphql-datagraph
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8080
