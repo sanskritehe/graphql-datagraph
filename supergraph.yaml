@@ -1,12 +1,12 @@
-federation_version: =2.0.0
+federation_version: =2.11.0
 
 subgraphs:
   appointment-service:
     routing_url: http://appointment-service:8001/graphql
     schema:
-      subgraph_url: http://appointment-service:8001/graphql
+      file: ./appointment-service.graphql
 
   appointment-db-service:
     routing_url: http://appointment-db-service:8000/graphql
     schema:
-      subgraph_url: http://appointment-db-service:8000/graphql
+      file: ./appointment-db-service.graphql
