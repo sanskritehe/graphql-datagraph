@@ -16,13 +16,4 @@ type Query {
   appointmentById(id: Int!): Appointment
   appointment(id: Int!): Appointment
   appointmentRecord(id: Int!): AppointmentStorage
-  microsoftRepos: [Repository!]!
-}
-
-type Repository {
-  id: Int!
-  name: String!
-  html_url: String!
-  description: String!
-  language: String!
 }

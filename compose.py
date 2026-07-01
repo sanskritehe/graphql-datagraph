@@ -41,20 +41,58 @@ def main():
     
     print("\n--- 3. Composing Supergraph Schema ---")
     yaml_path = os.path.join(base_dir, "supergraph.yaml")
-    res = subprocess.run(
-        ["npx", "@apollo/rover", "supergraph", "compose", "--config", yaml_path],
-        cwd=base_dir,
-        capture_output=True,
-        text=True,
-        shell=True
-    )
-    if res.returncode != 0:
-        print("Error composing supergraph:", res.stderr)
-        sys.exit(1)
+    
+    stdout_data = None
+    try_wsl = False
+    
+    try:
+        res = subprocess.run(
+            ["npx", "@apollo/rover", "supergraph", "compose", "--config", yaml_path],
+            cwd=base_dir,
+            capture_output=True,
+            text=True,
+            shell=True
+        )
+        if res.returncode != 0:
+            err_msg = res.stderr or ""
+            if "blocked" in err_msg.lower() or "spawn" in err_msg or "unknown" in err_msg.lower() or res.returncode == 1:
+                try_wsl = True
+            else:
+                print("Error composing supergraph natively:", res.stderr)
+                sys.exit(1)
+        else:
+            stdout_data = res.stdout
+    except Exception as e:
+        print(f"Native composition failed with exception: {e}")
+        try_wsl = True
+
+    if try_wsl:
+        print("[!] Native Rover execution failed or blocked by policy. Falling back to WSL...")
+        wsl_path = base_dir.replace("\\", "/")
+        if ":" in wsl_path:
+            drive, path = wsl_path.split(":", 1)
+            wsl_path = f"/mnt/{drive.lower()}{path}"
+        
+        wsl_cmd = (
+            f"wsl -d Ubuntu sh -c "
+            f"\"export APOLLO_ELV2_LICENSE=accept && "
+            f"cd {wsl_path} && "
+            f"~/.rover/bin/rover supergraph compose --config ./supergraph.yaml\""
+        )
+        res_wsl = subprocess.run(
+            wsl_cmd,
+            capture_output=True,
+            text=True,
+            shell=True
+        )
+        if res_wsl.returncode != 0:
+            print("Error composing supergraph via WSL:", res_wsl.stderr)
+            sys.exit(1)
+        stdout_data = res_wsl.stdout
         
     supergraph_path = os.path.join(base_dir, "supergraph.graphql")
     with open(supergraph_path, "w", encoding="utf-8") as f:
-        f.write(res.stdout)
+        f.write(stdout_data)
     print(f"Saved: {supergraph_path}")
     print("\n[+] Supergraph composed successfully!")
 

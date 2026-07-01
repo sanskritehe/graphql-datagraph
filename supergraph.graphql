@@ -67,16 +67,4 @@ type Query
   appointmentById(id: Int!): Appointment
   appointment(id: Int!): Appointment
   appointmentRecord(id: Int!): AppointmentStorage
-  microsoftRepos: [Repository!]!
-}
-
-type Repository
-  @join__type(graph: APPOINTMENT_DB_SERVICE)
-  @join__type(graph: APPOINTMENT_SERVICE)
-{
-  id: Int!
-  name: String!
-  html_url: String!
-  description: String!
-  language: String!
 }
