@@ -19,6 +19,16 @@ directive @join__unionMember(graph: join__Graph!, member: String!) repeatable on
 
 directive @link(url: String, as: String, for: link__Purpose, import: [link__Import]) repeatable on SCHEMA
 
+type Appointment
+  @join__type(graph: APPOINTMENT_DB_SERVICE)
+  @join__type(graph: APPOINTMENT_SERVICE)
+{
+  id: Int!
+  user: String!
+  time: String!
+  status: String!
+}
+
 type AppointmentStorage
   @join__type(graph: APPOINTMENT_DB_SERVICE)
   @join__type(graph: APPOINTMENT_SERVICE)
@@ -54,6 +64,19 @@ type Query
   @join__type(graph: APPOINTMENT_DB_SERVICE)
   @join__type(graph: APPOINTMENT_SERVICE)
 {
+  appointmentById(id: Int!): Appointment
+  appointment(id: Int!): Appointment
   appointmentRecord(id: Int!): AppointmentStorage
-  getAppointment(id: Int!): AppointmentStorage
+  microsoftRepos: [Repository!]!
+}
+
+type Repository
+  @join__type(graph: APPOINTMENT_DB_SERVICE)
+  @join__type(graph: APPOINTMENT_SERVICE)
+{
+  id: Int!
+  name: String!
+  html_url: String!
+  description: String!
+  language: String!
 }
