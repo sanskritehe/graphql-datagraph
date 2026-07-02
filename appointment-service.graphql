@@ -1,3 +1,10 @@
+type Appointment {
+  id: Int!
+  user: String!
+  time: String!
+  status: String!
+}
+
 type AppointmentStorage {
   id: Int!
   user: String!
@@ -6,6 +13,16 @@ type AppointmentStorage {
 }
 
 type Query {
+  appointmentById(id: Int!): Appointment
+  appointment(id: Int!): Appointment
   appointmentRecord(id: Int!): AppointmentStorage
-  getAppointment(id: Int!): AppointmentStorage
+  microsoftRepos: [Repository!]!
+}
+
+type Repository {
+  id: Int!
+  name: String!
+  html_url: String!
+  description: String!
+  language: String!
 }
